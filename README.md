@@ -5,7 +5,7 @@
 ## 經文、查經與分享備註
 
 - **和合本版本**：Bible Gateway 經典繁體和合本，version id **`CUV`**（不是 CUVMPT / RCUV / 修訂版）。例：`https://www.biblegateway.com/passage/?search=Mark+1%3A1-20&version=CUV`
-- **WhatsApp 今日分享**：訊息含當日日期、馬可福音段落、靜態打包的 CUV 經文（過長則截斷並附 CUV 連結），以及 app URL。經文來源：`lib/data/mark-cuv.json`（Bible Gateway CUV，bundled for share）。
+- **WhatsApp 今日分享**：慶祝「我今日已讀」的生動粵語／繁中訊息（含當日馬可福音段落、主題一句、emoji），結尾附 app URL；不以長篇 CUV 經文為主內容。開啟方式見下。
 - **WhatsApp 開啟方式**：使用 `https://api.whatsapp.com/send?text=`（一般 WhatsApp），避免 Business 專用 deep link；詳見 PR 說明。
 - **查經信息**：按當日 passage 的馬可章節對應 playlist，見 [`docs/sermon-mapping.md`](docs/sermon-mapping.md)。
 

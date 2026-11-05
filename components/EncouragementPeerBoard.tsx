@@ -14,7 +14,7 @@ export default function EncouragementPeerBoard({ entries }: EncouragementPeerBoa
         同行榜
       </h2>
       <p className="text-sm text-gray mb-3" style={{ lineHeight: 1.6 }}>
-        看見彼此同行的腳步，彼此代禱、互相勉勵——這裡不是比賽，也不是比較誰讀得快。
+        彼此勉勵，激發愛主的心🔥——這裡不是競賽，而是一同進入敬拜🙌。
       </p>
 
       {entries.length === 0 ? (
