@@ -3,13 +3,14 @@ import { PrismaClient } from '@prisma/client'
 import { redirect } from 'next/navigation'
 import TodayCard from '@/components/TodayCard'
 import ShareWhatsAppButton from '@/components/ShareWhatsAppButton'
+import EncouragementPeerBoard from '@/components/EncouragementPeerBoard'
+import { getEncouragementPeerBoard } from '@/lib/leaderboard'
+import { computeHongKongReadingStreak } from '@/lib/readingStreak'
 import {
-  addCalendarDaysIso,
   buildChallengeWhatsAppMessage,
   buildWhatsAppShareUrl,
   formatPlanDateChinese,
   getDateIsoForPlanDay,
-  getHongKongDateIsoFromReadAt,
   getHongKongTodayIso,
   getPlanDayForHongKongToday,
 } from '@/lib/plan'
@@ -47,20 +48,11 @@ export default async function DashboardPage() {
   const completedCount = completedDays.size
   const percentage = Math.round((completedCount / totalDays) * 100)
 
-  const datesWithProgress = user.progress
-    .map(p => getHongKongDateIsoFromReadAt(new Date(p.readAt)))
-    .reduce((acc, date) => {
-      acc.add(date)
-      return acc
-    }, new Set<string>())
+  const streak = computeHongKongReadingStreak(
+    user.progress.map((p) => new Date(p.readAt))
+  )
 
-  let streak = 0
-  let checkDateIso = getHongKongTodayIso()
-
-  while (datesWithProgress.has(checkDateIso)) {
-    streak++
-    checkDateIso = addCalendarDaysIso(checkDateIso, -1)
-  }
+  const peerBoard = await getEncouragementPeerBoard(prisma, user.id)
 
   const currentDay = getPlanDayForHongKongToday()
   const todayPlan = allDays.find(d => d.day === currentDay)
@@ -96,6 +88,8 @@ export default async function DashboardPage() {
         </div>
         <ShareWhatsAppButton href={shareChallengeUrl} compact className="mt-2" />
       </div>
+
+      <EncouragementPeerBoard entries={peerBoard.entries} />
 
       {todayPlan && (
         <TodayCard

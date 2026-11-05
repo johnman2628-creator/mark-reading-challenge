@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { PrismaClient } from '@prisma/client'
+import { ensureEncouragementNickname } from '@/lib/encouragementNickname'
 
 const prisma = new PrismaClient()
 
@@ -58,6 +59,8 @@ export async function POST(request: NextRequest) {
       planDay: true,
     },
   })
+
+  await ensureEncouragementNickname(prisma, user.id)
 
   return NextResponse.json(progress)
 }

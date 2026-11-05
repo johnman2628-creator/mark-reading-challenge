@@ -3,6 +3,8 @@ import { PrismaClient } from '@prisma/client'
 import { redirect } from 'next/navigation'
 import PlanList from '@/components/PlanList'
 import ShareWhatsAppButton from '@/components/ShareWhatsAppButton'
+import EncouragementPeerBoard from '@/components/EncouragementPeerBoard'
+import { getEncouragementPeerBoard } from '@/lib/leaderboard'
 import { buildChallengeWhatsAppMessage, buildWhatsAppShareUrl } from '@/lib/plan'
 
 const prisma = new PrismaClient()
@@ -31,6 +33,7 @@ export default async function PlanPage() {
 
   const completedDays = new Set(user.progress.map(p => p.day))
   const shareChallengeUrl = buildWhatsAppShareUrl(buildChallengeWhatsAppMessage())
+  const peerBoard = await getEncouragementPeerBoard(prisma, user.id)
 
   return (
     <>
@@ -49,6 +52,8 @@ export default async function PlanPage() {
         completedDays={completedDays}
         userId={user.id}
       />
+
+      <EncouragementPeerBoard entries={peerBoard.entries} />
     </>
   )
 }
