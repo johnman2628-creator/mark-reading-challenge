@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { PlanDay } from '@prisma/client'
 import ShareWhatsAppButton from '@/components/ShareWhatsAppButton'
 import {
@@ -26,6 +26,9 @@ const encouragements = [
   '一天一步，與主同行。',
 ]
 
+/** How long the post-complete encouragement banner stays visible before refresh. */
+const ENCOURAGEMENT_VISIBLE_MS = 5000
+
 export default function TodayCard({
   planDay,
   isCompleted: initialCompleted,
@@ -35,6 +38,28 @@ export default function TodayCard({
   const [isCompleted, setIsCompleted] = useState(initialCompleted)
   const [isLoading, setIsLoading] = useState(false)
   const [showEncouragement, setShowEncouragement] = useState(false)
+  const [encouragementText, setEncouragementText] = useState('')
+  const encouragementTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (encouragementTimerRef.current) {
+        clearTimeout(encouragementTimerRef.current)
+      }
+    }
+  }, [])
+
+  /**
+   * Hide the encouragement banner and reload so peer board / progress refresh.
+   */
+  const finishEncouragementAndRefresh = () => {
+    if (encouragementTimerRef.current) {
+      clearTimeout(encouragementTimerRef.current)
+      encouragementTimerRef.current = null
+    }
+    setShowEncouragement(false)
+    window.location.reload()
+  }
 
   const handleToggleComplete = async () => {
     setIsLoading(true)
@@ -49,9 +74,15 @@ export default function TodayCard({
 
         if (response.ok) {
           setIsCompleted(true)
+          setEncouragementText(
+            encouragements[Math.floor(Math.random() * encouragements.length)]
+          )
           setShowEncouragement(true)
-          setTimeout(() => setShowEncouragement(false), 4000)
-          setTimeout(() => window.location.reload(), 1000)
+          // Keep banner ~5s (was cut short by a 1s reload). Dismissible via button.
+          encouragementTimerRef.current = setTimeout(
+            finishEncouragementAndRefresh,
+            ENCOURAGEMENT_VISIBLE_MS
+          )
         }
       } else {
         const response = await fetch(`/api/progress?day=${planDay.day}`, {
@@ -70,7 +101,6 @@ export default function TodayCard({
     }
   }
 
-  const randomEncouragement = encouragements[Math.floor(Math.random() * encouragements.length)]
   const bibleUrl = buildBibleGatewayCuvUrl(planDay.passage)
   const sermonUrl = planDay.sermonUrl ?? buildSermonUrlForPlanDay(planDay.day)
   const whatsAppMessage = buildTodayWhatsAppMessage({
@@ -161,7 +191,9 @@ export default function TodayCard({
       {showEncouragement && (
         <div
           className="card"
+          role="status"
           style={{
+            position: 'relative',
             background: 'var(--color-success-soft)',
             color: '#0f5132',
             textAlign: 'center',
@@ -169,8 +201,28 @@ export default function TodayCard({
             borderColor: 'rgba(46, 204, 135, 0.35)',
           }}
         >
-          <div className="text-xl" style={{ fontWeight: 'bold' }}>
-            ✨ {randomEncouragement}
+          <button
+            type="button"
+            onClick={finishEncouragementAndRefresh}
+            aria-label="關閉鼓勵訊息"
+            style={{
+              position: 'absolute',
+              top: '8px',
+              right: '10px',
+              border: 'none',
+              background: 'transparent',
+              color: '#0f5132',
+              opacity: 0.65,
+              cursor: 'pointer',
+              fontSize: '18px',
+              lineHeight: 1,
+              padding: '4px 6px',
+            }}
+          >
+            ×
+          </button>
+          <div className="text-xl" style={{ fontWeight: 'bold', paddingRight: '16px' }}>
+            ✨ {encouragementText}
           </div>
         </div>
       )}
