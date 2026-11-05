@@ -205,14 +205,17 @@ export function buildTodayWhatsAppMessage(options: {
   ].join('\n')
 }
 
-/** General invite for the challenge (plan page / header). */
+/**
+ * Home / progress-card invite WhatsApp share (dashboard progress + plan page).
+ * Separate from {@link buildTodayWhatsAppMessage} (TodayCard celebrate share).
+ */
 export function buildChallengeWhatsAppMessage(): string {
   return [
-    '你好！邀請你一起參加「馬可福音 30 日讀經挑戰」🙏',
+    '我今日讀咗馬可福音啦☺️邀請你都一齊參加「馬可福音 30 日讀經挑戰」啦🫵',
     '',
-    '30 日讀畢馬可福音（和合本），每日按段落閱讀，適合弟兄姊妹一同同行。',
+    '30 日享讀完馬可福音，每日按段落閱讀，配合信息，仰望主的榮美✨️每日被祂自己和祂的愛吸引～',
     '',
-    APP_URL,
+    'https://mark-reading-challenge.vercel.app',
   ].join('\n')
 }
 
