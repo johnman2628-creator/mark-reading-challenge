@@ -11,25 +11,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   session: { strategy: 'jwt' },
   callbacks: {
     ...authConfig.callbacks,
-    async signIn({ user, account, profile }) {
-      if (!user.email) return false
-      
-      const existingUser = await prisma.user.findUnique({
-        where: { email: user.email }
+    async signIn({ user }) {
+      return !!user.email
+    },
+  },
+  events: {
+    async linkAccount({ user, profile }) {
+      const sub =
+        profile && typeof profile === 'object' && 'sub' in profile
+          ? String(profile.sub)
+          : undefined
+      const picture =
+        profile && typeof profile === 'object' && 'picture' in profile
+          ? String(profile.picture)
+          : undefined
+
+      if (!sub && !picture) return
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          ...(sub ? { googleSub: sub } : {}),
+          ...(picture ? { photoUrl: picture, image: picture } : {}),
+        },
       })
-
-      if (!existingUser && profile?.sub) {
-        await prisma.user.create({
-          data: {
-            email: user.email,
-            googleSub: profile.sub,
-            name: user.name,
-            photoUrl: user.image,
-          }
-        })
-      }
-
-      return true
     },
   },
 })
