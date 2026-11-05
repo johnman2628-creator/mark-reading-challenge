@@ -1,5 +1,3 @@
-import { formatCuvPassageForShare } from '@/lib/markCuv'
-
 /** Hong Kong timezone for calendar-day boundaries. */
 export const PLAN_TIMEZONE = 'Asia/Hong_Kong'
 
@@ -124,22 +122,85 @@ export function buildWhatsAppDeepLink(message: string): string {
   return `whatsapp://send?text=${encodeURIComponent(message)}`
 }
 
-/** Warm invite when sharing today's reading, including CUV verse text. */
+/**
+ * Short spiritual one-liners keyed by plan `theme`.
+ * Used in WhatsApp celebrate-share copy (not full verse dumps).
+ */
+const THEME_SHARE_ONE_LINERS: Record<string, string> = {
+  '序言與呼召': '我更珍貴主從天而來💙',
+  '迦百農的權柄與醫治': '主有權柄，今日也醫治我心🔥',
+  '潔淨長大痲瘋的；抬褥子的人': '主能潔淨，也抬起我🙌',
+  '召利未；禁食辯論': '主召我來跟隨，我願回應✨',
+  '安息日醫治；選十二使徒': '主揀選我們，與祂同行🤝',
+  '家屬；褻瀆聖靈': '行神旨意的，就是主的家人💙',
+  '撒種的比喻': '願我心作好土，領受主道🌱',
+  '燈與度量；平靜風浪': '風浪中有主，心就平安🌊',
+  '格拉森趕鬼': '主大能釋放，黑暗退去🔥',
+  '睚魯的女兒與血漏的婦人': '信心一摸，主就醫治🙌',
+  '故鄉與差遣門徒': '奉主差遣，勇敢去傳✨',
+  '施洗約翰之死；五餅二魚': '主能以少變多，供應有餘🍞',
+  '水面行走；革尼撒勒醫治': '風浪裡仍緊握主的手💙',
+  '古人的遺傳': '求主潔淨我內心，不單外貌🙏',
+  '外邦婦人；聾啞人得醫治': '主的恩典臨到萬民🙌',
+  '四千人；求神蹟與酵': '開我心眼，認得真糧✨',
+  '伯賽大瞎子；彼得認信與捨己': '你是基督！我願捨己跟隨🔥',
+  '登山變像；下山趕鬼': '榮耀山上，下山仍有能力⛰️',
+  '第二預告；誰為大；不敵擋': '服事人的才是真正為大💙',
+  '休妻；祝福小孩；財主': '像小孩般倚靠主🙌',
+  '上耶路撒冷：第三次預告受難；雅各約翰求首位；瞎子巴底買得看見':
+    '背起十架，跟隨主上耶路撒冷🔥',
+  '受難週開始：騎驢進京（棕枝主日）；潔淨聖殿；無花果樹的教訓':
+    '主進京城，我心向祂歡呼✨',
+  '聖殿衝突：質疑耶穌權柄；惡園戶比喻；納稅給凱撒':
+    '把該歸主的歸給主💙',
+  '聖殿教導：復活辯論；最大的誡命；窮寡婦的兩個小錢':
+    '盡心愛主，並愛鄰舍如己❤️',
+  '橄欖山講論（上）：聖殿被毀預告；末世災難與假基督':
+    '儆醒等候，不被迷惑👀',
+  '橄欖山講論（下）與陰謀：人子降臨；儆醒；祭司設計；伯大尼膏抹':
+    '為主擺上，馨香如膏抹🙏',
+  '逾越節夜：預備筵席；設立聖餐；預告彼得不認；客西馬尼禱告':
+    '主為我捨身，我記念祂的愛💙',
+  '夜間受審：猶大親嘴出賣；被捕；公會審問；彼得三次不認主':
+    '縱然軟弱，主仍不離棄🙌',
+  '受難日（上）：解交彼拉多；鞭打受辱；帶到各各他；釘十字架':
+    '主為我受苦，大愛測不透✨',
+  '受難日與復活：耶穌斷氣；埋葬；七日的第一日從死裡復活':
+    '主已復活！我心歡喜讚美🥳🔥',
+}
+
+/**
+ * Warm personal one-liner for WhatsApp share, tied to plan theme when known.
+ */
+export function buildShareThemeOneLiner(theme?: string): string {
+  if (theme && THEME_SHARE_ONE_LINERS[theme]) {
+    return THEME_SHARE_ONE_LINERS[theme]
+  }
+  if (theme) {
+    return `今日主題：「${theme}」✨`
+  }
+  return '願主的話繼續燃亮我心✨'
+}
+
+/**
+ * Celebrate-today WhatsApp share: lively Cantonese-friendly Traditional Chinese.
+ * Celebrates that the sharer already read today’s passage — no full CUV verse dump.
+ *
+ * Template example:
+ * 「好嘢！🥳我今日讀咗馬可福音 1:1–1:20啦～我更珍貴主從天而來💙」
+ */
 export function buildTodayWhatsAppMessage(options: {
   dateLabel: string
   passage: string
   theme?: string
 }): string {
-  const { dateLabel, passage } = options
-  const { verseBlock } = formatCuvPassageForShare(passage)
+  const { passage, theme } = options
+  const oneLiner = buildShareThemeOneLiner(theme)
 
   return [
-    `今日（${dateLabel}）馬可福音 ${passage}（和合本）`,
+    `好嘢！🥳我今日讀咗馬可福音 ${passage}啦～${oneLiner}`,
     '',
-    verseBlock,
-    '',
-    '一起來讀啦～今天這段好有力量，願主的話鼓勵你！🙏',
-    '',
+    '一齊嚟讀馬可福音啦～🙌',
     APP_URL,
   ].join('\n')
 }
