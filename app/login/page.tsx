@@ -4,14 +4,11 @@ export default function LoginPage() {
   return (
     <div className="container" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="card" style={{ maxWidth: '400px', width: '100%', textAlign: 'center' }}>
-        <h1 className="text-3xl mb-3" style={{ color: '#667eea', fontWeight: 'bold' }}>
+        <h1 className="text-3xl mb-3 text-primary" style={{ fontWeight: 'bold' }}>
           馬可福音30日讀經挑戰
         </h1>
         <p className="text-gray mb-4" style={{ lineHeight: '1.6' }}>
           與弟兄姊妹一同，用30日完成馬可福音（和合本）
-        </p>
-        <p className="text-sm text-gray mb-4">
-          每日按故事段落閱讀，配合查經信息，一步步經歷主的恩典
         </p>
         <form
           action={async () => {

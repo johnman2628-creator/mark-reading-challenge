@@ -2,11 +2,19 @@
 
 import { useState } from 'react'
 import { PlanDay } from '@prisma/client'
+import ShareWhatsAppButton from '@/components/ShareWhatsAppButton'
+import {
+  buildBibleGatewayCuvmptUrl,
+  buildTodayWhatsAppMessage,
+  buildWhatsAppShareUrl,
+} from '@/lib/plan'
+import { buildSermonUrlForPlanDay } from '@/lib/youtubePlaylist'
 
 interface TodayCardProps {
   planDay: PlanDay
   isCompleted: boolean
   userId: string
+  dateLabel: string
 }
 
 const encouragements = [
@@ -18,14 +26,19 @@ const encouragements = [
   '一天一步，與主同行。',
 ]
 
-export default function TodayCard({ planDay, isCompleted: initialCompleted, userId }: TodayCardProps) {
+export default function TodayCard({
+  planDay,
+  isCompleted: initialCompleted,
+  userId,
+  dateLabel,
+}: TodayCardProps) {
   const [isCompleted, setIsCompleted] = useState(initialCompleted)
   const [isLoading, setIsLoading] = useState(false)
   const [showEncouragement, setShowEncouragement] = useState(false)
 
   const handleToggleComplete = async () => {
     setIsLoading(true)
-    
+
     try {
       if (!isCompleted) {
         const response = await fetch('/api/progress', {
@@ -33,7 +46,7 @@ export default function TodayCard({ planDay, isCompleted: initialCompleted, user
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ day: planDay.day }),
         })
-        
+
         if (response.ok) {
           setIsCompleted(true)
           setShowEncouragement(true)
@@ -44,7 +57,7 @@ export default function TodayCard({ planDay, isCompleted: initialCompleted, user
         const response = await fetch(`/api/progress?day=${planDay.day}`, {
           method: 'DELETE',
         })
-        
+
         if (response.ok) {
           setIsCompleted(false)
           setTimeout(() => window.location.reload(), 500)
@@ -58,13 +71,27 @@ export default function TodayCard({ planDay, isCompleted: initialCompleted, user
   }
 
   const randomEncouragement = encouragements[Math.floor(Math.random() * encouragements.length)]
+  const bibleUrl = buildBibleGatewayCuvmptUrl(planDay.passage)
+  const sermonUrl = planDay.sermonUrl ?? buildSermonUrlForPlanDay(planDay.day)
+  const whatsAppUrl = buildWhatsAppShareUrl(
+    buildTodayWhatsAppMessage({
+      dateLabel,
+      passage: planDay.passage,
+      theme: planDay.theme,
+    })
+  )
 
   return (
     <>
-      <div className="card" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
-        <div className="flex justify-between items-center mb-3">
-          <div className="badge" style={{ background: 'rgba(255,255,255,0.3)', color: 'white' }}>
-            第 {planDay.day} 日
+      <div className="card card-hero">
+        <div className="flex justify-between items-center mb-3 flex-wrap gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="badge badge-soft">
+              第 {planDay.day} 日
+            </div>
+            <div className="text-sm" style={{ fontWeight: 600 }}>
+              {dateLabel}
+            </div>
           </div>
           <div className="text-sm">
             {planDay.verseCount} 節
@@ -75,47 +102,57 @@ export default function TodayCard({ planDay, isCompleted: initialCompleted, user
           馬可福音 {planDay.passage}
         </h2>
 
-        <p className="text-lg mb-3" style={{ opacity: 0.95 }}>
+        <p className="text-lg mb-3">
           {planDay.theme}
         </p>
 
-        <div className="text-sm mb-4" style={{ opacity: 0.9 }}>
+        <div className="text-sm mb-4" style={{ opacity: 0.85 }}>
           {planDay.chapter}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <a
-            href={`https://www.biblegateway.com/passage/?search=Mark+${planDay.passage.replace('–', '-')}&version=CUVS`}
+            href={bibleUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="button button-secondary"
-            style={{ flex: 1, background: 'white', color: '#667eea' }}
+            style={{ flex: 1, minWidth: '140px', background: 'white' }}
           >
-            閱讀經文
+            打開和合本
           </a>
-          {planDay.sermonUrl && (
-            <a
-              href={planDay.sermonUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="button button-secondary"
-              style={{ flex: 1, background: 'rgba(255,255,255,0.2)', color: 'white', border: '2px solid white' }}
-            >
-              查經信息
-            </a>
-          )}
+          <a
+            href={sermonUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="button button-secondary"
+            style={{
+              flex: 1,
+              minWidth: '140px',
+              background: 'rgba(255,255,255,0.55)',
+              borderColor: 'rgba(15, 41, 66, 0.25)',
+              color: 'var(--color-hero-text)',
+            }}
+          >
+            查經信息
+          </a>
         </div>
+
+        <ShareWhatsAppButton href={whatsAppUrl} className="mt-2" />
 
         <button
           onClick={handleToggleComplete}
           disabled={isLoading}
           className={`button ${isCompleted ? 'button-secondary' : 'button-success'}`}
-          style={{ 
-            width: '100%', 
-            marginTop: '16px',
-            background: isCompleted ? 'rgba(255,255,255,0.2)' : '#10b981',
-            color: 'white',
-            border: isCompleted ? '2px solid white' : 'none'
+          style={{
+            width: '100%',
+            marginTop: '12px',
+            ...(isCompleted
+              ? {
+                  background: 'rgba(255,255,255,0.55)',
+                  borderColor: 'rgba(15, 41, 66, 0.25)',
+                  color: 'var(--color-hero-text)',
+                }
+              : {}),
           }}
         >
           {isLoading ? '處理中...' : isCompleted ? '✓ 已完成（點擊取消）' : '標記為已完成'}
@@ -123,13 +160,14 @@ export default function TodayCard({ planDay, isCompleted: initialCompleted, user
       </div>
 
       {showEncouragement && (
-        <div 
-          className="card" 
-          style={{ 
-            background: '#10b981', 
-            color: 'white', 
+        <div
+          className="card"
+          style={{
+            background: 'var(--color-success-soft)',
+            color: '#0f5132',
             textAlign: 'center',
-            animation: 'fadeIn 0.3s ease-in'
+            animation: 'fadeIn 0.3s ease-in',
+            borderColor: 'rgba(46, 204, 135, 0.35)',
           }}
         >
           <div className="text-xl" style={{ fontWeight: 'bold' }}>
