@@ -66,6 +66,9 @@ export default async function DashboardPage() {
 
   return (
     <>
+      {/* Peer worship / 同行榜 first — above progress + today’s reading card */}
+      <EncouragementPeerBoard entries={peerBoard.entries} />
+
       <div className="card mt-3">
         <div className="flex justify-between items-center mb-3">
           <div>
@@ -94,8 +97,6 @@ export default async function DashboardPage() {
           className="mt-2"
         />
       </div>
-
-      <EncouragementPeerBoard entries={peerBoard.entries} />
 
       {todayPlan && (
         <TodayCard
