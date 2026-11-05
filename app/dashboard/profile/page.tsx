@@ -7,7 +7,7 @@ const prisma = new PrismaClient()
 
 export default async function ProfilePage() {
   const session = await auth()
-  
+
   if (!session?.user?.email) {
     redirect('/login')
   }
@@ -47,19 +47,19 @@ export default async function ProfilePage() {
       </div>
 
       <div className="card">
-        <h3 className="text-xl mb-3" style={{ fontWeight: 'bold', color: '#667eea' }}>
+        <h3 className="text-xl mb-3 text-primary" style={{ fontWeight: 'bold' }}>
           讀經進度摘要
         </h3>
-        
+
         <div className="grid grid-cols-2 mb-3">
-          <div style={{ textAlign: 'center', padding: '16px', background: '#f3f4f6', borderRadius: '8px' }}>
-            <div className="text-3xl" style={{ fontWeight: 'bold', color: '#667eea' }}>
+          <div className="stat-tile">
+            <div className="text-3xl text-primary" style={{ fontWeight: 'bold' }}>
               {completedCount}
             </div>
             <div className="text-sm text-gray mt-1">已完成天數</div>
           </div>
-          <div style={{ textAlign: 'center', padding: '16px', background: '#f3f4f6', borderRadius: '8px' }}>
-            <div className="text-3xl" style={{ fontWeight: 'bold', color: '#10b981' }}>
+          <div className="stat-tile" style={{ background: 'var(--color-success-soft)' }}>
+            <div className="text-3xl text-success" style={{ fontWeight: 'bold' }}>
               {percentage}%
             </div>
             <div className="text-sm text-gray mt-1">完成百分比</div>
@@ -75,7 +75,7 @@ export default async function ProfilePage() {
       </div>
 
       <div className="card">
-        <h3 className="text-xl mb-3" style={{ fontWeight: 'bold', color: '#667eea' }}>
+        <h3 className="text-xl mb-3 text-primary" style={{ fontWeight: 'bold' }}>
           關於此讀經計劃
         </h3>
         <p className="text-sm mb-2" style={{ lineHeight: '1.6' }}>
@@ -84,7 +84,7 @@ export default async function ProfilePage() {
         <p className="text-sm mb-2" style={{ lineHeight: '1.6' }}>
           第21-30日特別跟隨主最後一週的腳蹤：上耶路撒冷、聖殿衝突、橄欖山講論、逾越節夜、受審釘十架，直到復活。
         </p>
-        <p className="text-sm" style={{ lineHeight: '1.6', color: '#667eea', fontWeight: 600 }}>
+        <p className="text-sm text-primary" style={{ lineHeight: '1.6', fontWeight: 600 }}>
           願主的話成為你腳前的燈、路上的光。
         </p>
       </div>
