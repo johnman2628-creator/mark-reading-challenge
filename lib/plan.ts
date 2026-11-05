@@ -1,3 +1,5 @@
+import { formatCuvPassageForShare } from '@/lib/markCuv'
+
 /** Hong Kong timezone for calendar-day boundaries. */
 export const PLAN_TIMEZONE = 'Asia/Hong_Kong'
 
@@ -89,35 +91,55 @@ export function formatPlanDateChinese(isoDate: string): string {
 }
 
 /**
- * Bible Gateway CUVMPT (繁體中文和合本) URL for a Mark passage string.
+ * Bible Gateway classic Traditional 和合本 URL (`version=CUV`).
+ * Not CUVMPT / RCUV / RCU17TS / 和合本修訂版.
  */
-export function buildBibleGatewayCuvmptUrl(passage: string): string {
+export function buildBibleGatewayCuvUrl(passage: string): string {
   const normalized = passage.replace(/[–—]/g, '-')
   const query = encodeURIComponent(`Mark ${normalized}`).replace(/%20/g, '+')
-  return `https://www.biblegateway.com/passage/?search=${query}&version=CUVMPT`
+  return `https://www.biblegateway.com/passage/?search=${query}&version=CUV`
+}
+
+/** @deprecated Use {@link buildBibleGatewayCuvUrl}; kept as alias during rename. */
+export function buildBibleGatewayCuvmptUrl(passage: string): string {
+  return buildBibleGatewayCuvUrl(passage)
 }
 
 /**
- * WhatsApp click-to-chat URL with a pre-filled message.
+ * WhatsApp share URL targeting the regular (consumer) WhatsApp app.
+ *
+ * Uses `https://api.whatsapp.com/send?text=` (not Business-specific schemes).
+ * On phones this opens personal WhatsApp when installed; `wa.me` is avoided as
+ * the primary host because some devices with WhatsApp Business resolve it to Business.
  */
 export function buildWhatsAppShareUrl(message: string): string {
-  return `https://wa.me/?text=${encodeURIComponent(message)}`
+  return `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`
 }
 
-/** Warm invite when sharing today's reading. */
+/**
+ * Mobile deep-link for consumer WhatsApp (`whatsapp://send?text=`).
+ * Pair with {@link buildWhatsAppShareUrl} as https fallback.
+ */
+export function buildWhatsAppDeepLink(message: string): string {
+  return `whatsapp://send?text=${encodeURIComponent(message)}`
+}
+
+/** Warm invite when sharing today's reading, including CUV verse text. */
 export function buildTodayWhatsAppMessage(options: {
   dateLabel: string
   passage: string
-  theme: string
+  theme?: string
 }): string {
-  const { dateLabel, passage, theme } = options
+  const { dateLabel, passage } = options
+  const { verseBlock } = formatCuvPassageForShare(passage)
+
   return [
-    '你好！邀請你一起參加「馬可福音 30 日讀經挑戰」🙏',
+    `今日（${dateLabel}）馬可福音 ${passage}（和合本）`,
     '',
-    `今日（${dateLabel}）讀經：馬可福音 ${passage}`,
-    theme,
+    verseBlock,
     '',
-    '一同在主裡讀經、成長：',
+    '一起來讀啦～今天這段好有力量，願主的話鼓勵你！🙏',
+    '',
     APP_URL,
   ].join('\n')
 }

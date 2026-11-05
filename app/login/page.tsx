@@ -8,7 +8,9 @@ export default function LoginPage() {
           馬可福音30日讀經挑戰
         </h1>
         <p className="text-gray mb-4" style={{ lineHeight: '1.6' }}>
-          與弟兄姊妹一同，用30日完成馬可福音（和合本）
+          與弟兄姊妹一同
+          <br />
+          用30日完成馬可福音（和合本）
         </p>
         <form
           action={async () => {

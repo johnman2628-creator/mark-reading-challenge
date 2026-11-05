@@ -2,6 +2,21 @@
 
 30日完成馬可福音（和合本）的讀經 Web 應用程式。
 
+## 經文、查經與分享備註
+
+- **和合本版本**：Bible Gateway 經典繁體和合本，version id **`CUV`**（不是 CUVMPT / RCUV / 修訂版）。例：`https://www.biblegateway.com/passage/?search=Mark+1%3A1-20&version=CUV`
+- **WhatsApp 今日分享**：訊息含當日日期、馬可福音段落、靜態打包的 CUV 經文（過長則截斷並附 CUV 連結），以及 app URL。經文來源：`lib/data/mark-cuv.json`（Bible Gateway CUV，bundled for share）。
+- **WhatsApp 開啟方式**：使用 `https://api.whatsapp.com/send?text=`（一般 WhatsApp），避免 Business 專用 deep link；詳見 PR 說明。
+- **查經信息**：按當日 passage 的馬可章節對應 playlist，見 [`docs/sermon-mapping.md`](docs/sermon-mapping.md)。
+
+## 背景圖片致謝
+
+Login 與登入後頁面背景為明亮藍天白雲照片：
+
+- Photo by [HUI Mandy](https://unsplash.com/@mandyhui) on [Unsplash](https://unsplash.com/photos/bright-blue-sky-and-fluffy-white-clouds-__AMAxRbwMU)
+- License: [Unsplash License](https://unsplash.com/license)
+- Local file: `public/images/sky-bg.jpg`（1920×1280，`w=1920&q=80`）
+
 ## 功能特色
 
 - 🔐 **Google 登入** - 安全便捷的身份驗證

@@ -32,7 +32,8 @@ export default async function PlanPage() {
   })
 
   const completedDays = new Set(user.progress.map(p => p.day))
-  const shareChallengeUrl = buildWhatsAppShareUrl(buildChallengeWhatsAppMessage())
+  const shareChallengeMessage = buildChallengeWhatsAppMessage()
+  const shareChallengeUrl = buildWhatsAppShareUrl(shareChallengeMessage)
   const peerBoard = await getEncouragementPeerBoard(prisma, user.id)
 
   return (
@@ -44,7 +45,12 @@ export default async function PlanPage() {
         <p className="text-sm text-gray">
           馬可福音（和合本）· 共678節
         </p>
-        <ShareWhatsAppButton href={shareChallengeUrl} compact className="mt-3" />
+        <ShareWhatsAppButton
+          href={shareChallengeUrl}
+          message={shareChallengeMessage}
+          compact
+          className="mt-3"
+        />
       </div>
 
       <PlanList
