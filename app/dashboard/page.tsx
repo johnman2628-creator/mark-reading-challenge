@@ -17,6 +17,12 @@ import {
 
 const prisma = new PrismaClient()
 
+/**
+ * Dashboard home (`/dashboard`).
+ *
+ * Vertical card order: `TodayCard` (今日讀經), streak/progress + invite,
+ * then `EncouragementPeerBoard` (同行榜 last).
+ */
 export default async function DashboardPage() {
   const session = await auth()
 
@@ -66,8 +72,15 @@ export default async function DashboardPage() {
 
   return (
     <>
-      {/* Peer worship / 同行榜 first — above progress + today’s reading card */}
-      <EncouragementPeerBoard entries={peerBoard.entries} />
+      {/* Home order: today’s reading, then streak/progress, then 同行榜 */}
+      {todayPlan && (
+        <TodayCard
+          planDay={todayPlan}
+          isCompleted={isCompleted}
+          userId={user.id}
+          dateLabel={todayDateLabel}
+        />
+      )}
 
       <div className="card mt-3">
         <div className="flex justify-between items-center mb-3">
@@ -98,14 +111,7 @@ export default async function DashboardPage() {
         />
       </div>
 
-      {todayPlan && (
-        <TodayCard
-          planDay={todayPlan}
-          isCompleted={isCompleted}
-          userId={user.id}
-          dateLabel={todayDateLabel}
-        />
-      )}
+      <EncouragementPeerBoard entries={peerBoard.entries} />
 
       {completedCount === 30 && (
         <div
