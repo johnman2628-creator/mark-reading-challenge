@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { PlanDay } from '@prisma/client'
-import { formatPlanDateChinese, getDateIsoForPlanDay, buildBibleGatewayCuvmptUrl } from '@/lib/plan'
+import { formatPlanDateChinese, getDateIsoForPlanDay, buildBibleGatewayCuvUrl } from '@/lib/plan'
 import { buildSermonUrlForPlanDay } from '@/lib/youtubePlaylist'
 
 interface PlanListProps {
@@ -54,7 +54,7 @@ export default function PlanList({ planDays, completedDays: initialCompletedDays
         const isCompleted = completedDays.has(planDay.day)
         const isLoading = loadingDay === planDay.day
         const dateLabel = formatPlanDateChinese(getDateIsoForPlanDay(planDay.day))
-        const bibleUrl = buildBibleGatewayCuvmptUrl(planDay.passage)
+        const bibleUrl = buildBibleGatewayCuvUrl(planDay.passage)
         const sermonUrl = planDay.sermonUrl ?? buildSermonUrlForPlanDay(planDay.day)
 
         return (

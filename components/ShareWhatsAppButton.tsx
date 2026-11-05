@@ -1,14 +1,21 @@
 'use client'
 
 interface ShareWhatsAppButtonProps {
+  /**
+   * Share URL — prefer `https://api.whatsapp.com/send?text=…` so mobile opens
+   * regular (consumer) WhatsApp rather than WhatsApp Business.
+   */
   href: string
+  /** Optional plain message (kept for callers / future deep-link use). */
+  message?: string
   /** When true, use compact styling for dense toolbars. */
   compact?: boolean
   className?: string
 }
 
 /**
- * Opens WhatsApp (app or Web) with a pre-filled share message.
+ * Opens WhatsApp with a pre-filled share message.
+ * Href should be `api.whatsapp.com/send` (consumer app), not Business schemes.
  */
 export default function ShareWhatsAppButton({
   href,

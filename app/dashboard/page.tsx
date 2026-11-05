@@ -61,7 +61,8 @@ export default async function DashboardPage() {
     ? formatPlanDateChinese(getDateIsoForPlanDay(todayPlan.day))
     : formatPlanDateChinese(getHongKongTodayIso())
 
-  const shareChallengeUrl = buildWhatsAppShareUrl(buildChallengeWhatsAppMessage())
+  const shareChallengeMessage = buildChallengeWhatsAppMessage()
+  const shareChallengeUrl = buildWhatsAppShareUrl(shareChallengeMessage)
 
   return (
     <>
@@ -86,7 +87,12 @@ export default async function DashboardPage() {
         <div className="text-sm text-gray text-center mt-1">
           已完成 {completedCount} / {totalDays} 日
         </div>
-        <ShareWhatsAppButton href={shareChallengeUrl} compact className="mt-2" />
+        <ShareWhatsAppButton
+          href={shareChallengeUrl}
+          message={shareChallengeMessage}
+          compact
+          className="mt-2"
+        />
       </div>
 
       <EncouragementPeerBoard entries={peerBoard.entries} />

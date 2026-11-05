@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { PlanDay } from '@prisma/client'
 import ShareWhatsAppButton from '@/components/ShareWhatsAppButton'
 import {
-  buildBibleGatewayCuvmptUrl,
+  buildBibleGatewayCuvUrl,
   buildTodayWhatsAppMessage,
   buildWhatsAppShareUrl,
 } from '@/lib/plan'
@@ -71,15 +71,14 @@ export default function TodayCard({
   }
 
   const randomEncouragement = encouragements[Math.floor(Math.random() * encouragements.length)]
-  const bibleUrl = buildBibleGatewayCuvmptUrl(planDay.passage)
+  const bibleUrl = buildBibleGatewayCuvUrl(planDay.passage)
   const sermonUrl = planDay.sermonUrl ?? buildSermonUrlForPlanDay(planDay.day)
-  const whatsAppUrl = buildWhatsAppShareUrl(
-    buildTodayWhatsAppMessage({
-      dateLabel,
-      passage: planDay.passage,
-      theme: planDay.theme,
-    })
-  )
+  const whatsAppMessage = buildTodayWhatsAppMessage({
+    dateLabel,
+    passage: planDay.passage,
+    theme: planDay.theme,
+  })
+  const whatsAppUrl = buildWhatsAppShareUrl(whatsAppMessage)
 
   return (
     <>
@@ -137,7 +136,7 @@ export default function TodayCard({
           </a>
         </div>
 
-        <ShareWhatsAppButton href={whatsAppUrl} className="mt-2" />
+        <ShareWhatsAppButton href={whatsAppUrl} message={whatsAppMessage} className="mt-2" />
 
         <button
           onClick={handleToggleComplete}
