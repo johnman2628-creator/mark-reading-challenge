@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: mark-reading-challenge
+    runtime: node
+    region: singapore
+    plan: free
+    buildCommand: npm ci && npx prisma generate && npm run build
+    startCommand: npx prisma migrate deploy && npm run db:seed && npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 18.20.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mark-reading-db
+          property: connectionString
+      - key: AUTH_SECRET
+        sync: false
+      - key: AUTH_GOOGLE_ID
+        sync: false
+      - key: AUTH_GOOGLE_SECRET
+        sync: false
+      - key: AUTH_URL
+        sync: false
+    healthCheckPath: /login
+
+databases:
+  - name: mark-reading-db
+    databaseName: mark_reading
+    plan: free
+    region: singapore
