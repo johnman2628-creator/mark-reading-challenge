@@ -5,6 +5,11 @@ import { authConfig } from './auth.config'
 
 const prisma = new PrismaClient()
 
+/**
+ * Full Auth.js instance used by the App Router route handler.
+ * PrismaAdapter + JWT session; Google account linking is unchanged so
+ * existing users (matched by email / providerAccountId) keep their rows.
+ */
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(prisma),
