@@ -6,6 +6,9 @@ interface EncouragementPeerBoardProps {
 
 /**
  * 「同行榜」— mutual encouragement without exposing identity.
+ *
+ * @note Displays each person’s all-time highest consecutive-reading record
+ * (最高連續紀錄), not the live current streak that resets after a missed day.
  */
 export default function EncouragementPeerBoard({ entries }: EncouragementPeerBoardProps) {
   return (
@@ -13,8 +16,11 @@ export default function EncouragementPeerBoard({ entries }: EncouragementPeerBoa
       <h2 className="text-xl mb-1 text-primary" style={{ fontWeight: 'bold' }}>
         同行榜
       </h2>
-      <p className="text-sm text-gray mb-3" style={{ lineHeight: 1.6 }}>
+      <p className="text-sm text-gray mb-1" style={{ lineHeight: 1.6 }}>
         彼此勉勵，激發愛主的心🔥——這裡不是競賽，而是一同進入敬拜🙌。
+      </p>
+      <p className="text-sm text-gray mb-3" style={{ lineHeight: 1.6 }}>
+        按「最高連續紀錄」排列，記念彼此走過的日子；漏了一日也不會變成零。
       </p>
 
       {entries.length === 0 ? (
@@ -77,7 +83,7 @@ export default function EncouragementPeerBoard({ entries }: EncouragementPeerBoa
                   已完成 <strong className="text-primary">{entry.daysCompleted}</strong> 日
                 </div>
                 <div>
-                  連續 <strong>{entry.streak}</strong> 日
+                  最高連續紀錄 <strong className="text-primary">{entry.bestStreak}</strong> 日
                 </div>
               </div>
             </li>

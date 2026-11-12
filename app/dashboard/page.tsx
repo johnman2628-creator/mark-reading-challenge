@@ -5,7 +5,10 @@ import TodayCard from '@/components/TodayCard'
 import ShareWhatsAppButton from '@/components/ShareWhatsAppButton'
 import EncouragementPeerBoard from '@/components/EncouragementPeerBoard'
 import { getEncouragementPeerBoard } from '@/lib/leaderboard'
-import { computeHongKongReadingStreak } from '@/lib/readingStreak'
+import {
+  computeHongKongBestReadingStreak,
+  computeHongKongReadingStreak,
+} from '@/lib/readingStreak'
 import {
   buildChallengeWhatsAppMessage,
   buildWhatsAppShareUrl,
@@ -20,8 +23,9 @@ const prisma = new PrismaClient()
 /**
  * Dashboard home (`/dashboard`).
  *
- * Vertical card order: `TodayCard` (今日讀經), streak/progress + invite,
- * then `EncouragementPeerBoard` (同行榜 last).
+ * Vertical card order: `TodayCard` (今日讀經), streak/progress + invite
+ * (目前連續 + 最高紀錄 + 整體進度), then `EncouragementPeerBoard`
+ * (同行榜 last, ranked by 最高連續紀錄).
  */
 export default async function DashboardPage() {
   const session = await auth()
@@ -54,9 +58,9 @@ export default async function DashboardPage() {
   const completedCount = completedDays.size
   const percentage = Math.round((completedCount / totalDays) * 100)
 
-  const streak = computeHongKongReadingStreak(
-    user.progress.map((p) => new Date(p.readAt))
-  )
+  const readAts = user.progress.map((p) => new Date(p.readAt))
+  const streak = computeHongKongReadingStreak(readAts)
+  const bestStreak = computeHongKongBestReadingStreak(readAts)
 
   const peerBoard = await getEncouragementPeerBoard(prisma, user.id)
 
@@ -83,11 +87,17 @@ export default async function DashboardPage() {
       )}
 
       <div className="card mt-3">
-        <div className="flex justify-between items-center mb-3">
+        <div className="flex justify-between items-center mb-2" style={{ gap: '8px' }}>
           <div>
-            <div className="text-sm text-gray">連續閱讀</div>
+            <div className="text-sm text-gray">目前連續</div>
             <div className="text-2xl text-primary" style={{ fontWeight: 'bold' }}>
               {streak} 日
+            </div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div className="text-sm text-gray">最高紀錄</div>
+            <div className="text-2xl text-primary" style={{ fontWeight: 'bold' }}>
+              {bestStreak} 日
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
@@ -97,6 +107,9 @@ export default async function DashboardPage() {
             </div>
           </div>
         </div>
+        <p className="text-sm text-gray mb-3" style={{ lineHeight: 1.6 }}>
+          漏了一日不要緊——最高紀錄仍然記念你曾經堅持過的日子。
+        </p>
         <div className="progress-bar">
           <div className="progress-bar-fill" style={{ width: `${percentage}%` }} />
         </div>
