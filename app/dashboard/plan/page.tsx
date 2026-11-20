@@ -59,7 +59,11 @@ export default async function PlanPage() {
         userId={user.id}
       />
 
-      <EncouragementPeerBoard entries={peerBoard.entries} />
+      <EncouragementPeerBoard
+        entries={peerBoard.entries}
+        readersTodayCount={peerBoard.readersTodayCount}
+        restartedThisWeekCount={peerBoard.restartedThisWeekCount}
+      />
     </>
   )
 }

@@ -56,7 +56,7 @@ export default async function ProfilePage() {
             <div className="text-3xl text-primary" style={{ fontWeight: 'bold' }}>
               {completedCount}
             </div>
-            <div className="text-sm text-gray mt-1">已完成天數</div>
+            <div className="text-sm text-gray mt-1">已完成總日數</div>
           </div>
           <div className="stat-tile" style={{ background: 'var(--color-success-soft)' }}>
             <div className="text-3xl text-success" style={{ fontWeight: 'bold' }}>

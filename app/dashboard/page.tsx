@@ -8,7 +8,9 @@ import { getEncouragementPeerBoard } from '@/lib/leaderboard'
 import {
   computeHongKongBestReadingStreak,
   computeHongKongReadingStreak,
+  hasHongKongProgressOnDate,
 } from '@/lib/readingStreak'
+import { personalProgressEncouragementLines } from '@/lib/encouragementCopy'
 import {
   buildChallengeWhatsAppMessage,
   buildWhatsAppShareUrl,
@@ -24,8 +26,8 @@ const prisma = new PrismaClient()
  * Dashboard home (`/dashboard`).
  *
  * Vertical card order: `TodayCard` (今日讀經), streak/progress + invite
- * (目前連續 + 最高紀錄 + 整體進度), then `EncouragementPeerBoard`
- * (同行榜 last, ranked by 最高連續紀錄).
+ * (目前連續 + 最高紀錄 + 已完成總日數), then `EncouragementPeerBoard`
+ * (同行榜 last, ranked by 最高連續紀錄, with today/week encouragement stats).
  */
 export default async function DashboardPage() {
   const session = await auth()
@@ -59,8 +61,10 @@ export default async function DashboardPage() {
   const percentage = Math.round((completedCount / totalDays) * 100)
 
   const readAts = user.progress.map((p) => new Date(p.readAt))
-  const streak = computeHongKongReadingStreak(readAts)
+  const todayIso = getHongKongTodayIso()
+  const streak = computeHongKongReadingStreak(readAts, todayIso)
   const bestStreak = computeHongKongBestReadingStreak(readAts)
+  const hasReadToday = hasHongKongProgressOnDate(readAts, todayIso)
 
   const peerBoard = await getEncouragementPeerBoard(prisma, user.id)
 
@@ -69,7 +73,7 @@ export default async function DashboardPage() {
   const isCompleted = todayPlan ? completedDays.has(todayPlan.day) : false
   const todayDateLabel = todayPlan
     ? formatPlanDateChinese(getDateIsoForPlanDay(todayPlan.day))
-    : formatPlanDateChinese(getHongKongTodayIso())
+    : formatPlanDateChinese(todayIso)
 
   const shareChallengeMessage = buildChallengeWhatsAppMessage()
   const shareChallengeUrl = buildWhatsAppShareUrl(shareChallengeMessage)
@@ -101,20 +105,31 @@ export default async function DashboardPage() {
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div className="text-sm text-gray">整體進度</div>
+            <div className="text-sm text-gray">已完成總日數</div>
             <div className="text-2xl text-success" style={{ fontWeight: 'bold' }}>
-              {percentage}%
+              {completedCount} 日
             </div>
           </div>
         </div>
-        <p className="text-sm text-gray mb-3" style={{ lineHeight: 1.6 }}>
-          漏了一日不要緊——最高紀錄仍然記念你曾經堅持過的日子。
-        </p>
+        <div className="mb-3" style={{ lineHeight: 1.65 }}>
+          {personalProgressEncouragementLines(hasReadToday).map((line, index) => (
+            <p
+              key={line}
+              className={index === 0 ? undefined : 'text-sm mt-1'}
+              style={{
+                fontWeight: index < 2 ? 600 : 400,
+                color: index < 2 ? 'var(--color-text)' : 'var(--color-text-muted)',
+              }}
+            >
+              {line}
+            </p>
+          ))}
+        </div>
         <div className="progress-bar">
           <div className="progress-bar-fill" style={{ width: `${percentage}%` }} />
         </div>
         <div className="text-sm text-gray text-center mt-1">
-          已完成 {completedCount} / {totalDays} 日
+          已完成總日數 {completedCount} / {totalDays} 日（{percentage}%）
         </div>
         <ShareWhatsAppButton
           href={shareChallengeUrl}
@@ -124,7 +139,11 @@ export default async function DashboardPage() {
         />
       </div>
 
-      <EncouragementPeerBoard entries={peerBoard.entries} />
+      <EncouragementPeerBoard
+        entries={peerBoard.entries}
+        readersTodayCount={peerBoard.readersTodayCount}
+        restartedThisWeekCount={peerBoard.restartedThisWeekCount}
+      />
 
       {completedCount === 30 && (
         <div

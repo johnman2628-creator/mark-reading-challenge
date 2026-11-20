@@ -9,6 +9,7 @@ import {
   buildWhatsAppShareUrl,
 } from '@/lib/plan'
 import { buildSermonUrlForPlanDay } from '@/lib/youtubePlaylist'
+import { AFTER_READING_ENCOURAGEMENTS } from '@/lib/encouragementCopy'
 
 interface TodayCardProps {
   planDay: PlanDay
@@ -16,15 +17,6 @@ interface TodayCardProps {
   userId: string
   dateLabel: string
 }
-
-const encouragements = [
-  '今日都來到主面前，好好。',
-  '願主的話成為你今日的力量。',
-  '每一步都是恩典，繼續前行。',
-  '忠心的僕人，做得好！',
-  '主必看顧你的擺上。',
-  '一天一步，與主同行。',
-]
 
 /** How long the post-complete encouragement banner stays visible before refresh. */
 const ENCOURAGEMENT_VISIBLE_MS = 5000
@@ -75,7 +67,9 @@ export default function TodayCard({
         if (response.ok) {
           setIsCompleted(true)
           setEncouragementText(
-            encouragements[Math.floor(Math.random() * encouragements.length)]
+            AFTER_READING_ENCOURAGEMENTS[
+              Math.floor(Math.random() * AFTER_READING_ENCOURAGEMENTS.length)
+            ]
           )
           setShowEncouragement(true)
           // Keep banner ~5s (was cut short by a 1s reload). Dismissible via button.

@@ -2,6 +2,8 @@ import {
   addCalendarDaysIso,
   getHongKongDateIsoFromReadAt,
   getHongKongTodayIso,
+  getHongKongWeekMondayIso,
+  isHongKongDateInCurrentWeek,
 } from '@/lib/plan'
 
 /**
@@ -76,6 +78,89 @@ export function computeHongKongBestReadingStreak(readAts: Date[]): number {
   return bestStreak
 }
 
+/**
+ * Whether any progress timestamp falls on this Hong Kong calendar date.
+ *
+ * @param readAts - Progress timestamps (any order; same-day duplicates count once)
+ * @param dateIso - Hong Kong calendar date `YYYY-MM-DD`
+ */
+export function hasHongKongProgressOnDate(
+  readAts: Date[],
+  dateIso: string
+): boolean {
+  return uniqueHongKongProgressDates(readAts).includes(dateIso)
+}
+
+/**
+ * Whether this reader started or restarted in the current Hong Kong week.
+ *
+ * A restart (or first start) is a progress date `D` from 星期一 through today
+ * whose previous calendar day has no progress — a missed day, then a later
+ * reading this week. First-time readers whose first date is this week match
+ * the same rule, so the count stays encouraging without being empty.
+ *
+ * @param readAts - Progress timestamps (any order; same-day duplicates count once)
+ * @param todayIso - Hong Kong calendar date to treat as today
+ * @returns True if they began or came back this week (Monday through today)
+ * @note Someone reading every day from last week into this week is a continuation,
+ * not a restart: Monday's previous day (Sunday) already has progress.
+ */
+export function didStartOrRestartHongKongReadingThisWeek(
+  readAts: Date[],
+  todayIso = getHongKongTodayIso()
+): boolean {
+  const datesWithProgress = new Set(uniqueHongKongProgressDates(readAts))
+  const weekMondayIso = getHongKongWeekMondayIso(todayIso)
+
+  for (const dateIso of datesWithProgress) {
+    if (!isHongKongDateInCurrentWeek(dateIso, todayIso, weekMondayIso)) {
+      continue
+    }
+
+    const previousDateIso = addCalendarDaysIso(dateIso, -1)
+    if (!datesWithProgress.has(previousDateIso)) {
+      return true
+    }
+  }
+
+  return false
+}
+
+export type EncouragementCommunityStats = {
+  /** Distinct fellow readers with progress on Hong Kong today. */
+  readersTodayCount: number
+  /**
+   * Distinct fellow readers who started or restarted this Hong Kong week
+   * (星期一 through today).
+   */
+  restartedThisWeekCount: number
+}
+
+/**
+ * Count today-readers and this-week start/restarts from each person's `readAt`s.
+ *
+ * @param participantsReadAts - One `Date[]` of progress timestamps per reader
+ * @param todayIso - Hong Kong calendar date to treat as today
+ */
+export function summarizeEncouragementCommunityStats(
+  participantsReadAts: Date[][],
+  todayIso = getHongKongTodayIso()
+): EncouragementCommunityStats {
+  let readersTodayCount = 0
+  let restartedThisWeekCount = 0
+
+  for (const readAts of participantsReadAts) {
+    if (hasHongKongProgressOnDate(readAts, todayIso)) {
+      readersTodayCount++
+    }
+    if (didStartOrRestartHongKongReadingThisWeek(readAts, todayIso)) {
+      restartedThisWeekCount++
+    }
+  }
+
+  return { readersTodayCount, restartedThisWeekCount }
+}
+
 export type EncouragementPeerEntry = {
   nickname: string
   daysCompleted: number
@@ -86,7 +171,7 @@ export type EncouragementPeerEntry = {
 
 export type EncouragementPeerBoard = {
   entries: EncouragementPeerEntry[]
-}
+} & EncouragementCommunityStats
 
 /**
  * Sort 同行榜 entries: highest record first, then days completed, then nickname.

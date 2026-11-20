@@ -61,6 +61,36 @@ export function addCalendarDaysIso(isoDate: string, deltaDays: number): string {
 }
 
 /**
+ * Monday (`YYYY-MM-DD`) of the Hong Kong calendar week containing `isoDate`.
+ *
+ * @param isoDate - Hong Kong calendar date `YYYY-MM-DD`
+ * @returns That week's 星期一
+ * @note Hong Kong diaries and ISO weeks both start on Monday. 「今個星期」
+ * in this app means 星期一 through today (not Sunday–Saturday).
+ */
+export function getHongKongWeekMondayIso(isoDate: string): string {
+  const [year, month, day] = isoDate.split('-').map(Number)
+  const weekday = new Date(Date.UTC(year, month - 1, day)).getUTCDay()
+  const daysFromMonday = weekday === 0 ? 6 : weekday - 1
+  return addCalendarDaysIso(isoDate, -daysFromMonday)
+}
+
+/**
+ * Whether `dateIso` falls in the current Hong Kong week through today.
+ *
+ * @param dateIso - Candidate Hong Kong calendar date
+ * @param todayIso - Hong Kong “today”
+ * @param weekMondayIso - Monday of that week; computed if omitted
+ */
+export function isHongKongDateInCurrentWeek(
+  dateIso: string,
+  todayIso: string,
+  weekMondayIso = getHongKongWeekMondayIso(todayIso)
+): boolean {
+  return dateIso >= weekMondayIso && dateIso <= todayIso
+}
+
+/**
  * Plan day number (1–30) for a Hong Kong calendar date.
  * Before the plan starts → 1; after day 30 → 30.
  */
